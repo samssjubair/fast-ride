@@ -9,7 +9,7 @@ const Ride = () => {
     console.log(ride);
     return (
         <div>
-            
+            ride 
         </div>
     );
 };

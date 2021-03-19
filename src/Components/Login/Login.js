@@ -9,7 +9,7 @@ import './Login.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons'
-import { Link } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 
 
 
@@ -20,7 +20,11 @@ if (!firebase.apps.length) {
 
 const Login = () => {
     const [newUser,setNewUser]=useState(false);
-    const { register, handleSubmit, watch, errors } = useForm();
+    let history = useHistory();
+    let location = useLocation();
+    let { from } = location.state || { from: { pathname: "/" } };
+    
+    const { register, handleSubmit: handleLoginSubmit, watch, errors } = useForm();
     const onSubmit = data => console.log(data);
     const [loggedInUser,setLoggedInUser]= useContext(UserContext);
     const googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -30,12 +34,10 @@ const Login = () => {
         .then((result) => {
             /** @type {firebase.auth.OAuthCredential} */
             var credential = result.credential;
-
-            // This gives you a Google Access Token. You can use it to access the Google API.
             var token = credential.accessToken;
-            // The signed-in user info.
             var user = result.user;
             setLoggedInUser(user);
+            history.replace(from);
         }).catch((error) => {
             // Handle Errors here.
             var errorCode = error.code;
@@ -51,10 +53,11 @@ const Login = () => {
     return (
         <div className="form-style">
             <h1>Login</h1>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleLoginSubmit(onSubmit)}>
+                
                 <input name="email" placeholder="Email" ref={register({required: true,pattern: /\S+@\S+\.\S+/})} /> <br/>
                 {errors.email && <span>Enter your email correctly</span>} <br/>
-                <input name="password" placeholder="Password" ref={register({required: true, pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/ })} /> <br/>
+                <input type="password" name="password" placeholder="Password" ref={register({required: true, pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/ })} /> <br/>
                 {errors.password && <span>Enter your password correctly</span>} <br/>
                 <div style={{display: 'flex', alignItems: 'center',justifyContent: 'space-between'}}>
                 <div>
