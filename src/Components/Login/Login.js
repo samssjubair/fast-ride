@@ -19,7 +19,10 @@ if (!firebase.apps.length) {
 
 
 const Login = () => {
+    const [loggedInUser,setLoggedInUser]= useContext(UserContext);
+    
     const [newUser,setNewUser]=useState(false);
+    const [loginError,setLoginError]=useState('');
     let history = useHistory();
     let location = useLocation();
     let { from } = location.state || { from: { pathname: "/" } };
@@ -34,29 +37,41 @@ const Login = () => {
             firebase.auth().createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log(user);
                 updateUserName(userName);
-                setLoggedInUser(user);
+                const {displayName,email}=user;
+                
+                const nUser={
+                    displayName: userName,
+                    email: email
+                }
+                console.log(user);
+                console.log(nUser);
+                setLoginError('');
+                
+                setLoggedInUser(nUser);
+                
+                console.log(loggedInUser);
                 history.replace(from);
-
             })
             .catch((error) => {
                 var errorCode = error.code;
                 var errorMessage = error.message;
+                setLoginError(errorMessage);
             });
         }
         else{
             firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 var user = userCredential.user;
-                console.log(user);
+                setLoginError('');
                 setLoggedInUser(user);
+                console.log(loggedInUser);
                 history.replace(from);
             })
             .catch((error) => {
                 var errorCode = error.code;
                 var errorMessage = error.message;
-                console.log(errorMessage);
+                setLoginError(errorMessage);
             });
         }
         
@@ -73,7 +88,7 @@ const Login = () => {
     }
 
 
-    const [loggedInUser,setLoggedInUser]= useContext(UserContext);
+    
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const handleGoogleSignIn=()=>{
         firebase.auth()
@@ -83,6 +98,7 @@ const Login = () => {
             var credential = result.credential;
             var token = credential.accessToken;
             var user = result.user;
+            setLoginError('');
             setLoggedInUser(user);
             history.replace(from);
         }).catch((error) => {
@@ -90,6 +106,7 @@ const Login = () => {
             var errorMessage = error.message;
             var email = error.email;
             var credential = error.credential;
+            setLoginError(errorMessage);
         });
     }
     
@@ -110,7 +127,7 @@ const Login = () => {
                 required: "You must specify a password",
                 minLength: {
                     value: 8,
-                    message: "Password must have at least 8 characters"
+                    message: "Password must have at least 8 characters including at least 1 digit"
                 }
                 })} /> <br/>
                 {errors.password && <p>{errors.password.message}</p>} <br/>
@@ -168,6 +185,8 @@ const Login = () => {
             <FontAwesomeIcon icon={faGoogle} />
              &nbsp;&nbsp; Sign in with google
             </Button>
+            <br/>
+            <p style={{color: 'red'}}>{loginError}</p>
             
         </div>
     );

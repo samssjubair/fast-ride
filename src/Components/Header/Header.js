@@ -20,7 +20,10 @@ const Header = () => {
         <li> <Link style={linkStyle} to="/contacts">Contacts</Link></li>
         
         {
-          loggedInUser.email? <li>{loggedInUser.displayName}</li> :
+          loggedInUser.email?
+          <> <li style={{color: 'white'}}>{loggedInUser.displayName}</li><Button style={{marginLeft: '10px'}} onClick={()=>setLoggedInUser({})} variant="contained" color="default">
+          Log Out
+        </Button> </> :
           <Link style={linkStyle} to="/login">
           <Button style={{marginLeft: '10px'}} variant="contained" color="secondary">
           Log In
