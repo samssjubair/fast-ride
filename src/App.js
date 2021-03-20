@@ -15,6 +15,7 @@ import Login from './Components/Login/Login';
 import PrivateRoute from './Components/PrivateRoute/PrivateRoute';
 import SignUp from './Components/SignUp/SignUp';
 import Blog from './Components/Blog/Blog';
+import ConfirmRide from './Components/ConfirmRide/ConfirmRide';
 
 export const UserContext= createContext();
 
@@ -50,6 +51,7 @@ function App() {
           <PrivateRoute path="/blog">
             <Blog></Blog>
           </PrivateRoute>
+          
           
           <Route path="*">
             <NotFound></NotFound>

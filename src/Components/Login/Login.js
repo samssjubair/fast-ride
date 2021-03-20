@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import firebase from "firebase/app";
 import "firebase/auth";
 import firebaseConfig from './firebase.config';
@@ -25,7 +25,54 @@ const Login = () => {
     let { from } = location.state || { from: { pathname: "/" } };
     
     const { register, handleSubmit: handleLoginSubmit, watch, errors } = useForm();
-    const onSubmit = data => console.log(data);
+    const password = useRef({});
+    password.current = watch("password", "");
+
+    const onSubmit = data => {
+        const {userName,email,password} =data;
+        if(newUser){
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log(user);
+                updateUserName(userName);
+                setLoggedInUser(user);
+                history.replace(from);
+
+            })
+            .catch((error) => {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+            });
+        }
+        else{
+            firebase.auth().signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                var user = userCredential.user;
+                console.log(user);
+                setLoggedInUser(user);
+                history.replace(from);
+            })
+            .catch((error) => {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorMessage);
+            });
+        }
+        
+    };
+    const updateUserName=(userName)=>{
+        var user = firebase.auth().currentUser;
+        user.updateProfile({
+        displayName: userName
+        }).then(function() {
+        // Update successful.
+        }).catch(function(error) {
+        // An error happened.
+        });
+    }
+
+
     const [loggedInUser,setLoggedInUser]= useContext(UserContext);
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const handleGoogleSignIn=()=>{
@@ -39,45 +86,81 @@ const Login = () => {
             setLoggedInUser(user);
             history.replace(from);
         }).catch((error) => {
-            // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
-            // The email of the user's account used.
             var email = error.email;
-            // The firebase.auth.AuthCredential type that was used.
             var credential = error.credential;
-            // ...
         });
     }
     
     return (
         <div className="form-style">
-            <h1>Login</h1>
+            {
+                newUser? <h1>Register</h1>: <h1>Login</h1>
+            }
             <form onSubmit={handleLoginSubmit(onSubmit)}>
-                
+                {
+                    newUser && 
+                    <><input name="userName" placeholder="Your full name" ref={register({required: true})} /> <br/>
+                    {errors.userName && <span>User Name is required</span>} <br/> </>
+                }
                 <input name="email" placeholder="Email" ref={register({required: true,pattern: /\S+@\S+\.\S+/})} /> <br/>
                 {errors.email && <span>Enter your email correctly</span>} <br/>
-                <input type="password" name="password" placeholder="Password" ref={register({required: true, pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/ })} /> <br/>
-                {errors.password && <span>Enter your password correctly</span>} <br/>
-                <div style={{display: 'flex', alignItems: 'center',justifyContent: 'space-between'}}>
-                <div>
-                <Checkbox
-                    defaultChecked
-                    color="primary"
-                    inputProps={{ 'aria-label': 'secondary checkbox' }}
-                /> Remember me</div>  <div style={{color: 'red'}}>Forgot password?</div> </div> <br/>
+                <input type="password" name="password" placeholder="Password" ref={register({
+                required: "You must specify a password",
+                minLength: {
+                    value: 8,
+                    message: "Password must have at least 8 characters"
+                }
+                })} /> <br/>
+                {errors.password && <p>{errors.password.message}</p>} <br/>
+                {
+                    newUser &&
+                    <>
+                        <input
+                        placeholder="Confirm your password"
+                        name="password_repeat"
+                        type="password"
+                        ref={register({
+                        validate: value =>
+                            value === password.current || "The passwords do not match"
+                        })}
+                        /> <br/>
+                        {errors.password_repeat && <p>{errors.password_repeat.message}</p>} <br/>
+                    
+                    </>
+                }
+                {
+                    newUser ||
+                    <div style={{display: 'flex', alignItems: 'center',justifyContent: 'space-between'}}>
+                    <div>
+                    <Checkbox
+                        defaultChecked
+                        color="primary"
+                        inputProps={{ 'aria-label': 'secondary checkbox' }}
+                    /> Remember me</div>  <div style={{color: 'red'}}>Forgot password?</div>
+                     </div> 
+                }
+                
+                <br/>
      
                 <Button
                         type="submit"
                         variant="contained"
                         color="secondary">
-                        Login
+                        {
+                            newUser? 'Create your account' : 'Login'
+                        }
                     </Button> 
                     
             </form> 
             
             <hr/>
-            <p>Don't have an account? <span onClick={()=>setNewUser(!newUser)} style={{color: 'red',cursor: 'pointer'}}>Sign Up now</span></p>
+            {
+                newUser? <p>Already have an account? <span onClick={()=>setNewUser(!newUser)} style={{color: 'red',cursor: 'pointer'}}>Login now</span></p>:
+                 <p>Don't have an account? <span onClick={()=>setNewUser(!newUser)} style={{color: 'red',cursor: 'pointer'}}>Sign Up now</span></p> 
+                
+            }
             <p>Or</p>
             
             <Button variant="outlined" color="secondary" onClick={handleGoogleSignIn}>
