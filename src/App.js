@@ -23,7 +23,7 @@ function App() {
   const [loggedInUser,setLoggedInUser]= useState({});
   
   return (
-    <div className="App bg-image">
+    <div className="App  bg-image">
     <UserContext.Provider value={[loggedInUser,setLoggedInUser]} >
       <Router>
       
