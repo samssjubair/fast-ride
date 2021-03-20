@@ -5,7 +5,7 @@ import fakeData from '../../FakeData/FakeData';
 import './Ride.css';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import { Button } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 import Map from '../Map/Map';
 import ConfirmRide from '../ConfirmRide/ConfirmRide';
 
@@ -31,10 +31,18 @@ const Ride = () => {
       setAddress(data);
     };
     return (
-        <div style={{display:'flex',justifyContent: 'space-between'}}>
+          <Grid
+          container
+          
+          direction="row"
+          justify="space-around"
+          
+          alignItems="center"
+        >
+        {/* // <div style={{display:'flex',justifyContent: 'space-between'}}> */}
           {
             Boolean(address.destination) || 
-              <div >
+            <Grid item xs={12} sm={4} >
               <form className="destination-form" onSubmit={handleSubmit(onSubmit)}>
               {/* register your input into the hook by invoking the "register" function */}
               <label for="pickFrom">Pick From</label> <br/>
@@ -64,16 +72,17 @@ const Ride = () => {
 
               </form>
               
-          </div>
+          </Grid>
           }
           {
             address.destination && 
-            <ConfirmRide ride={ride} address={address}></ConfirmRide>
+            <Grid item xs={12} sm={4}><ConfirmRide ride={ride} address={address}></ConfirmRide></Grid>
           }
-          <div style={{width: '70%',marginRight: '20px',borderRadius: '20px'}}>
+          <Grid item xs={12} sm={8} >
             <Map></Map>
-          </div>
-        </div>
+          </Grid>
+        {/* </div> */}
+        </Grid>
     );
 };
 
