@@ -13,7 +13,7 @@ const Header = () => {
   return (
     <div>
       <ul>
-        <h1>Fast-Ride</h1>
+        <h2>Fast-Ride</h2>
         <li  className="ms-auto"> <Link style={linkStyle} to="/home">Home</Link> </li>
         <li> <Link style={linkStyle}  to="/ride/bike">Destination</Link></li>
         <li> <Link style={linkStyle}  to="/blog">Blog</Link></li>
