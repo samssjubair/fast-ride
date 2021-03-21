@@ -44,13 +44,8 @@ const Login = () => {
                     displayName: userName,
                     email: email
                 }
-                console.log(user);
-                console.log(nUser);
                 setLoginError('');
-                
                 setLoggedInUser(nUser);
-                
-                console.log(loggedInUser);
                 history.replace(from);
             })
             .catch((error) => {
